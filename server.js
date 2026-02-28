@@ -173,7 +173,32 @@ const saveSite = async (req, res, isUpdate = false) => {
             await execSudo(`chown -R yufang:yufang ${siteDir}`);
 
             // Generate a default index.html for testing
-            const testPageContent = `<!DOCTYPE html><html><head><title>Welcome to ${baseName}</title><style>body{font-family:sans-serif;text-align:center;padding:50px;background:#f4f4f4;}h1{color:#333;}.container{background:#fff;padding:40px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);max-width:600px;margin:0 auto;}</style></head><body><div class="container"><h1>🎉 It works!</h1><p>This is the default testing page for <b>${baseName}</b>.</p><p style="color:#666;font-size:0.9em;">Nginx Manager (WSL Edition)</p></div></body></html>`;
+            const testPageContent = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎访问 ${baseName}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background: #f0f2f5; color: #333; margin: 0; }
+        .container { background: #fff; padding: 50px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 650px; margin: 0 auto; }
+        h1 { color: #1890ff; font-size: 2.5em; margin-bottom: 20px; }
+        .icon { font-size: 4em; margin-bottom: 20px; }
+        p { font-size: 1.2em; line-height: 1.6; color: #555; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.9em; }
+        code { background: #f4f4f4; padding: 4px 8px; border-radius: 4px; color: #d63384; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚀</div>
+        <h1>构建成功！</h1>
+        <p>恭喜，此站点 <b>${baseName}</b> 已经成功由 Nginx 解析并运行。</p>
+        <p>这是系统自动生成的默认测试页面，你可以将你的前端打包文件 (例如 Vite 构建生成的 <code>dist</code> 文件夹内的内容) 替换掉 <code>~/workspace/${baseName}</code> 目录下的这个文件。</p>
+        <div class="footer">Nginx 管理控制台 (WSL Edition) 提供强力驱动</div>
+    </div>
+</body>
+</html>`;
             const indexFilePath = path.join(siteDir, 'index.html');
             await writeSudo(indexFilePath, testPageContent);
             await execSudo(`chown yufang:yufang ${indexFilePath}`);

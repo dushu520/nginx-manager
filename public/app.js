@@ -25,11 +25,11 @@ async function updateStatus() {
         if (data.nginx) {
             dot.className = 'w-3 h-3 rounded-full bg-green-500 mr-2';
             text.className = 'text-green-600 font-bold';
-            text.textContent = 'Active';
+            text.textContent = '运行中 (Active)';
         } else {
             dot.className = 'w-3 h-3 rounded-full bg-red-500 mr-2';
             text.className = 'text-red-600 font-bold';
-            text.textContent = 'Inactive';
+            text.textContent = '已停止 (Inactive)';
         }
     } catch (err) {
         console.error('Failed to fetch status', err);
@@ -40,7 +40,7 @@ async function controlService(action) {
     try {
         const btn = event.target.closest('button');
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Wait';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>稍等';
         btn.disabled = true;
 
         const res = await fetch(`${API_BASE}/service/${action}`, { method: 'POST' });
@@ -49,7 +49,7 @@ async function controlService(action) {
         if (!res.ok) {
             showAlert(data.error + (data.details ? ': ' + data.details : ''), 'error');
         } else {
-            showAlert(data.message, 'success');
+            showAlert('操作指令下发成功！', 'success');
         }
 
         await updateStatus();
@@ -57,7 +57,7 @@ async function controlService(action) {
         btn.innerHTML = originalHtml;
         btn.disabled = false;
     } catch (err) {
-        showAlert('Failed to connect to server', 'error');
+        showAlert('连接服务端失败', 'error');
     }
 }
 
@@ -70,7 +70,7 @@ async function loadSites() {
         listEl.innerHTML = '';
 
         if (currentSites.length === 0) {
-            listEl.innerHTML = '<li class="text-center text-gray-500 py-4">No sites found in available directory.</li>';
+            listEl.innerHTML = '<li class="text-center text-gray-500 py-4">在系统目录下未发现任何站点配置</li>';
             return;
         }
 
@@ -79,7 +79,7 @@ async function loadSites() {
             li.className = 'flex justify-between items-center p-3 hover:bg-gray-50 border rounded transition cursor-pointer';
 
             const badgeClass = site.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
-            const badgeText = site.enabled ? 'Enabled' : 'Disabled';
+            const badgeText = site.enabled ? '已启用' : '已禁用';
             const toggleIcon = site.enabled ? 'fa-toggle-on text-green-500' : 'fa-toggle-off text-gray-400';
 
             li.innerHTML = `
@@ -91,7 +91,7 @@ async function loadSites() {
                 </div>
                 <div class="flex items-center space-x-3 ml-2">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">${badgeText}</span>
-                    <button onclick="toggleSite('${site.name}', ${!site.enabled})" class="focus:outline-none" title="Toggle site status">
+                    <button onclick="toggleSite('${site.name}', ${!site.enabled})" class="focus:outline-none" title="切换站点生效状态">
                         <i class="fas ${toggleIcon} fa-lg"></i>
                     </button>
                 </div>
@@ -99,7 +99,7 @@ async function loadSites() {
             listEl.appendChild(li);
         });
     } catch (err) {
-        document.getElementById('siteList').innerHTML = '<li class="text-center text-red-500 py-4"><i class="fas fa-exclamation-triangle mr-2"></i>Failed to load sites</li>';
+        document.getElementById('siteList').innerHTML = '<li class="text-center text-red-500 py-4"><i class="fas fa-exclamation-triangle mr-2"></i>拉取站点列表失败，请检查服务状态</li>';
     }
 }
 
@@ -119,7 +119,7 @@ async function toggleSite(name, enable) {
             loadSites(); // refresh list
         }
     } catch (err) {
-        showAlert('Failed to connect to server', 'error');
+        showAlert('连接服务端失败', 'error');
     }
 }
 
@@ -136,7 +136,7 @@ async function loadSiteConfig(name) {
             document.getElementById('editorView').classList.remove('hidden');
 
             // Populate form
-            document.getElementById('editorTitle').textContent = `Editing: ${name}`;
+            document.getElementById('editorTitle').textContent = `正在编辑: ${name}`;
             document.getElementById('siteNameOriginal').value = name;
             document.getElementById('siteName').value = name;
             document.getElementById('isEditing').value = 'true';
@@ -162,7 +162,7 @@ async function loadSiteConfig(name) {
             showAlert(data.error, 'error');
         }
     } catch (err) {
-        showAlert('Failed to load config', 'error');
+        showAlert('获取此站点配置信息失败', 'error');
     }
 }
 
@@ -172,7 +172,7 @@ function showCreateForm() {
     document.getElementById('emptyState').classList.add('hidden');
     document.getElementById('editorView').classList.remove('hidden');
 
-    document.getElementById('editorTitle').textContent = 'Create New Site';
+    document.getElementById('editorTitle').textContent = '构建新微服务站点';
     document.getElementById('siteNameOriginal').value = '';
     document.getElementById('siteName').value = '';
     document.getElementById('isEditing').value = 'false';
@@ -232,7 +232,7 @@ async function saveSiteConfig() {
     const baseSiteName = document.getElementById('siteName').value;
 
     if (!baseSiteName) {
-        showAlert('Site name is required', 'error');
+        showAlert('项目名不能为空', 'error');
         return;
     }
 
@@ -251,7 +251,7 @@ async function saveSiteConfig() {
         payload.domain = domain;
         payload.port = document.getElementById('proxyPort').value;
         if (!payload.port) {
-            showAlert('Proxy Target Port is required for Proxy mode', 'error');
+            showAlert('反向代理模式下，请填写内部映射端口', 'error');
             return;
         }
     } else if (activeMode === 'static') {
@@ -262,7 +262,7 @@ async function saveSiteConfig() {
     } else if (activeMode === 'raw') {
         payload.content = document.getElementById('rawConfig').value;
         if (!payload.content) {
-            showAlert('Configuration content is required', 'error');
+            showAlert('原生的 Nginx 配置文本不得为空', 'error');
             return;
         }
     }
@@ -270,7 +270,7 @@ async function saveSiteConfig() {
     // Disable btn
     const btn = document.getElementById('saveBtn');
     const origHtml = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Saving...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>保存中...';
     btn.disabled = true;
 
     try {
@@ -288,7 +288,7 @@ async function saveSiteConfig() {
         if (!res.ok) {
             showAlert(data.error + (data.details ? ': \n' + data.details : ''), 'error');
         } else {
-            showAlert('Configuration saved successfully!', 'success');
+            showAlert('部署配置保存成功！', 'success');
             loadSites();
             // Swap to edit mode if we just created it
             if (!isEditing) {
@@ -296,7 +296,7 @@ async function saveSiteConfig() {
             }
         }
     } catch (err) {
-        showAlert('Failed to connect to server', 'error');
+        showAlert('连接服务器失败，尝试失败', 'error');
     } finally {
         btn.innerHTML = origHtml;
         btn.disabled = false;
@@ -307,14 +307,14 @@ async function deleteCurrentSite() {
     const name = document.getElementById('siteNameOriginal').value;
     if (!name) return;
 
-    let deleteMsg = `Are you sure you want to delete ${name}?\n\nThis will remove the configuration file permanently and reload Nginx.`;
-    const deleteFolder = confirm(deleteMsg + `\n\nDo you ALSO want to delete the web directory in ~/workspace for this site completely? Press OK to delete the directory, or Cancel to just delete the Nginx config.`);
+    let deleteMsg = `确定要删除 ${name} 吗？\n\n这将永久移除关联的 Nginx 配置文件并触发服务重载。`;
+    const deleteFolder = confirm(deleteMsg + `\n\n是否同时要将 ~/workspace 下关联的物理站点文件夹也一并清理销毁？\n(点击"确定"连同源码一并抹除，点击"取消"仅删除 Nginx 配置)`);
 
     // If user clicked Cancel, we still might want to just delete the site config without folder
     // But confirm returns false if they cancel both. Let's make it a two step process for clarity.
 
     // Step 1: Confirm site config deletion
-    if (!confirm(`Confirm: Delete Nginx configuration for ${name}?`)) {
+    if (!confirm(`最终安全确认: 是否执行对 ${name} 的清理流程？`)) {
         return;
     }
 
@@ -334,7 +334,7 @@ async function deleteCurrentSite() {
             loadSites();
         }
     } catch (err) {
-        showAlert('Failed to delete site', 'error');
+        showAlert('连接服务端失败，无法删除站点', 'error');
     }
 }
 

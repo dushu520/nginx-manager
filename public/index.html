@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nginx Manager</title>
+    <title>Nginx 管理控制台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -13,19 +13,19 @@
     <!-- Header -->
     <header class="bg-white shadow rounded-lg p-6 mb-6 flex justify-between items-center">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900"><i class="fas fa-server mr-2 text-blue-600"></i>Nginx Manager</h1>
-            <p class="text-sm text-gray-500 mt-1">WSL Node.js Edition</p>
+            <h1 class="text-2xl font-bold text-gray-900"><i class="fas fa-server mr-2 text-blue-600"></i>Nginx 管理台</h1>
+            <p class="text-sm text-gray-500 mt-1">WSL Node.js 特制版</p>
         </div>
         <div class="flex items-center space-x-4">
             <div id="nginxStatus" class="flex items-center">
                 <span class="w-3 h-3 rounded-full bg-gray-400 mr-2" id="nginxDot"></span>
-                <span class="font-medium mr-4">Nginx: <span id="nginxText" class="text-gray-600">Checking...</span></span>
+                <span class="font-medium mr-4">服务状态: <span id="nginxText" class="text-gray-600">检测中...</span></span>
             </div>
 
-            <button onclick="controlService('start')" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition text-sm"><i class="fas fa-play mr-1"></i>Start</button>
-            <button onclick="controlService('stop')" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm"><i class="fas fa-stop mr-1"></i>Stop</button>
-            <button onclick="controlService('restart')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition text-sm"><i class="fas fa-sync-alt mr-1"></i>Restart</button>
-            <button onclick="controlService('reload')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-sm"><i class="fas fa-redo mr-1"></i>Reload</button>
+            <button onclick="controlService('start')" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition text-sm"><i class="fas fa-play mr-1"></i>启动</button>
+            <button onclick="controlService('stop')" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm"><i class="fas fa-stop mr-1"></i>停止</button>
+            <button onclick="controlService('restart')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition text-sm"><i class="fas fa-sync-alt mr-1"></i>重启</button>
+            <button onclick="controlService('reload')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-sm"><i class="fas fa-redo mr-1"></i>重载配置</button>
         </div>
     </header>
 
@@ -33,11 +33,11 @@
         <!-- Site List -->
         <div class="bg-white shadow rounded-lg p-6 lg:col-span-1">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold">Sites</h2>
-                <button onclick="showCreateForm()" class="text-blue-600 hover:text-blue-800"><i class="fas fa-plus-circle fa-lg"></i></button>
+                <h2 class="text-lg font-bold">已部署站点</h2>
+                <button onclick="showCreateForm()" class="text-blue-600 hover:text-blue-800" title="新建站点"><i class="fas fa-plus-circle fa-lg"></i></button>
             </div>
             <ul id="siteList" class="space-y-2 max-h-[600px] overflow-y-auto">
-                <li class="text-center text-gray-500 py-4" id="loadingSites"><i class="fas fa-spinner fa-spin mr-2"></i>Loading sites...</li>
+                <li class="text-center text-gray-500 py-4" id="loadingSites"><i class="fas fa-spinner fa-spin mr-2"></i>加载中...</li>
             </ul>
         </div>
 
@@ -45,18 +45,18 @@
         <div class="bg-white shadow rounded-lg p-6 lg:col-span-2">
             <div id="emptyState" class="text-center py-20 text-gray-400">
                 <i class="fas fa-cubes fa-4x mb-4 text-blue-200"></i>
-                <h3 class="text-xl font-medium text-gray-600">Nginx Control Panel</h3>
-                <p class="mt-2 text-sm text-gray-500 max-w-sm mx-auto">Select an existing site configuration from the sidebar to manage it, or click the <i class="fas fa-plus-circle text-blue-500"></i> icon to spawn a new Static/PHP or Proxy server block.</p>
+                <h3 class="text-xl font-medium text-gray-600">Nginx 控制面板</h3>
+                <p class="mt-2 text-sm text-gray-500 max-w-sm mx-auto">从左侧边栏选择现有的站点配置进行管理，或者点击 <i class="fas fa-plus-circle text-blue-500"></i> 图标来部署全新的 静态/PHP 或 代理站点。</p>
                 <div class="mt-8 flex justify-center space-x-4">
                     <div class="bg-gray-50 p-4 rounded-lg border text-left w-48">
                         <i class="fas fa-folder-open text-yellow-500 mb-2 fa-lg"></i>
-                        <h4 class="font-medium text-gray-700 text-sm">Auto-Directories</h4>
-                        <p class="text-xs text-gray-500 mt-1">Sites are generated in ~/workspace automatically</p>
+                        <h4 class="font-medium text-gray-700 text-sm">自动挂载目录</h4>
+                        <p class="text-xs text-gray-500 mt-1">创建站点将自动在工作区 ~/workspace 下生成对应工程文件夹</p>
                     </div>
                     <div class="bg-gray-50 p-4 rounded-lg border text-left w-48">
                         <i class="fab fa-php text-indigo-500 mb-2 fa-lg"></i>
-                        <h4 class="font-medium text-gray-700 text-sm">PHP Ready</h4>
-                        <p class="text-xs text-gray-500 mt-1">1-click PHP 8.3-fpm socket integration</p>
+                        <h4 class="font-medium text-gray-700 text-sm">开箱即用的 PHP</h4>
+                        <p class="text-xs text-gray-500 mt-1">一键挂载 PHP 8.3-fpm 套接字整合渲染环境</p>
                     </div>
                 </div>
             </div>
@@ -64,14 +64,14 @@
             <div id="editorView" class="hidden">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <div class="flex items-center space-x-3">
-                        <h2 class="text-xl font-bold" id="editorTitle">Edit Site</h2>
+                        <h2 class="text-xl font-bold" id="editorTitle">编辑站点</h2>
                         <a href="#" id="siteVisitLink" target="_blank" class="hidden text-sm text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded transition">
-                            <i class="fas fa-external-link-alt mr-1"></i>Visit Site
+                            <i class="fas fa-external-link-alt mr-1"></i>访问测试
                         </a>
                     </div>
                     <div class="space-x-2">
-                        <button id="deleteBtn" onclick="deleteCurrentSite()" class="px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition text-sm"><i class="fas fa-trash-alt mr-1"></i>Delete</button>
-                        <button id="saveBtn" onclick="saveSiteConfig()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-medium"><i class="fas fa-save mr-1"></i>Save Config</button>
+                        <button id="deleteBtn" onclick="deleteCurrentSite()" class="px-3 py-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition text-sm"><i class="fas fa-trash-alt mr-1"></i>删除站点</button>
+                        <button id="saveBtn" onclick="saveSiteConfig()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-medium"><i class="fas fa-save mr-1"></i>保存配置</button>
                     </div>
                 </div>
 
@@ -80,39 +80,39 @@
                     <input type="hidden" id="isEditing" value="false">
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
-                        <input type="text" id="siteName" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. myapp" required>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">站点系统名称 (Site Name)</label>
+                        <input type="text" id="siteName" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如: my-test-project" required>
                     </div>
 
                     <div id="creationModes" class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Configuration Mode</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">生成模式选型 (Mode)</label>
                         <div class="flex space-x-4">
                             <label class="inline-flex items-center">
                                 <input type="radio" name="mode" value="static" class="form-radio text-blue-600" onchange="switchMode('static')" checked>
-                                <span class="ml-2">Static / PHP</span>
+                                <span class="ml-2">静态托管 / PHP</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="mode" value="proxy" class="form-radio text-blue-600" onchange="switchMode('proxy')">
-                                <span class="ml-2">Reverse Proxy</span>
+                                <span class="ml-2">纯反向代理 (Proxy)</span>
                             </label>
                             <label class="inline-flex items-center">
                                 <input type="radio" name="mode" value="raw" class="form-radio text-blue-600" onchange="switchMode('raw')">
-                                <span class="ml-2">Raw Mode</span>
+                                <span class="ml-2">高阶手撕配置 (Raw)</span>
                             </label>
                         </div>
                     </div>
 
                     <div id="commonFields" class="space-y-4 bg-gray-50 p-4 rounded-md">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Listen Port (Server External Port, default: 80)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nginx 监听端口 (Listen Port / 默认: 80)</label>
                             <input type="number" id="listenPort" class="w-full px-3 py-2 border rounded-md" placeholder="80" value="80">
                         </div>
                     </div>
 
                     <div id="proxyFields" class="space-y-4 bg-gray-50 px-4 pb-4 rounded-b-md">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Proxy Target Port (Internal Node.js Port, e.g. 3000)</label>
-                            <input type="number" id="proxyPort" class="w-full px-3 py-2 border rounded-md" placeholder="e.g. 3000">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">内部节点映射端口 (Proxy Target Port / 如: 3000)</label>
+                            <input type="number" id="proxyPort" class="w-full px-3 py-2 border rounded-md" placeholder="例如: 3000">
                         </div>
                     </div>
 
@@ -120,13 +120,13 @@
                         <div>
                             <label class="inline-flex items-center">
                                 <input type="checkbox" id="phpEnabled" class="form-checkbox text-blue-600 h-5 w-5">
-                                <span class="ml-2 text-sm text-gray-700">Enable PHP Processing (PHP 8.3-fpm)</span>
+                                <span class="ml-2 text-sm text-gray-700">开启 PHP 解析支持 (连接 Unix Socket PHP 8.3-fpm)</span>
                             </label>
                         </div>
                     </div>
 
                     <div id="rawFields" class="hidden h-96">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nginx Configuration</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nginx 原生配置代码</label>
                         <textarea id="rawConfig" class="w-full h-full p-3 border rounded-md font-mono text-sm bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="server { ... }"></textarea>
                     </div>
 
